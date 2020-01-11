@@ -1,6 +1,12 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -43,8 +49,11 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+final autoIncrement = Stream.periodic(Duration(seconds: 2), (c) => c + 1);
+
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  StreamSubscription _subscription;
 
   void _incrementCounter() {
     setState(() {
@@ -55,6 +64,21 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _subscription = autoIncrement.listen((c) => setState(() {
+          print('set counter to $c');
+          _counter = c;
+        }));
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   @override
